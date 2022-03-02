@@ -1,0 +1,30 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-ue-rrc-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\model\\lte-ue-rrc.cc"
+index 266bb7555..3a0784e48 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-ue-rrc-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\model\\lte-ue-rrc.cc"
+@@ -472,6 +472,25 @@ LteUeRrc::GetCellId () const
+   return m_cellId;
+ }
+ 
++double
++LteUeRrc::GetRsrp()
++{
++  std::map<uint16_t, MeasValues>::iterator servingMeasIt = m_storedMeasValues.find (m_cellId);
++  if(servingMeasIt != m_storedMeasValues.end ())
++    return EutranMeasurementMapping::Dbm2RsrpRange (servingMeasIt->second.rsrp);
++  else
++    return -1;
++}
++
++double
++LteUeRrc::GetRsrq()
++{
++  std::map<uint16_t, MeasValues>::iterator servingMeasIt = m_storedMeasValues.find (m_cellId);
++  if(servingMeasIt != m_storedMeasValues.end ())
++    return EutranMeasurementMapping::Db2RsrqRange (servingMeasIt->second.rsrq);
++  else
++    return -1;
++}
+ 
+ uint8_t
+ LteUeRrc::GetUlBandwidth () const

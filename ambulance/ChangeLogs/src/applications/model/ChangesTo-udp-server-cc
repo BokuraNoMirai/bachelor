@@ -1,0 +1,78 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\udp-server-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\applications\\model\\udp-server.cc"
+index 5c4aa17ba..01d3e4c97 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\udp-server-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\applications\\model\\udp-server.cc"
+@@ -40,6 +40,7 @@ NS_LOG_COMPONENT_DEFINE ("UdpServer");
+ 
+ NS_OBJECT_ENSURE_REGISTERED (UdpServer);
+ 
++std::ofstream outputFile;
+ 
+ TypeId
+ UdpServer::GetTypeId (void)
+@@ -149,6 +150,13 @@ UdpServer::StartApplication (void)
+ 
+   m_socket6->SetRecvCallback (MakeCallback (&UdpServer::HandleRead, this));
+ 
++  minDelay = Time::Max();
++  maxDelay = Time::Min();
++  totalDelay = Time(0);
++
++  outputFile.open("packetDelay.csv");
++  outputFile << "size,send Time,delay,packets lost\n";
++
+ }
+ 
+ void
+@@ -160,6 +168,16 @@ UdpServer::StopApplication ()
+     {
+       m_socket->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
+     }
++
++    NS_LOG_INFO("Received Packets:  " << m_received << std::endl <<
++                "Lost Packets:  " << m_lossCounter.GetLost() << std::endl <<
++                "Minimum Delay: " << minDelay.GetSeconds() << std::endl <<
++                "Maximum Delay: " << maxDelay.GetSeconds() << std::endl <<
++                "Mean Delay: " << (totalDelay/m_received).GetSeconds() << std::endl);
++
++  outputFile << "\n\nreceived packets,lost packets,minimum delay, maximum delay, mean delay\n";
++  outputFile << m_received << "," << m_lossCounter.GetLost() << "," << minDelay.GetSeconds() << "," << maxDelay.GetSeconds() << "," << (totalDelay/m_received).GetSeconds() << "\n";
++  outputFile.close();
+ }
+ 
+ void
+@@ -180,6 +198,12 @@ UdpServer::HandleRead (Ptr<Socket> socket)
+           SeqTsHeader seqTs;
+           packet->RemoveHeader (seqTs);
+           uint32_t currentSequenceNumber = seqTs.GetSeq ();
++          Time delay = Simulator::Now () - seqTs.GetTs ();
++          if(delay < minDelay)
++            minDelay = delay;
++          if(delay > maxDelay)
++            maxDelay = delay;
++          totalDelay += delay;
+           if (InetSocketAddress::IsMatchingType (from))
+             {
+               NS_LOG_INFO ("TraceDelay: RX " << receivedSize <<
+@@ -188,7 +212,7 @@ UdpServer::HandleRead (Ptr<Socket> socket)
+                            " Uid: " << packet->GetUid () <<
+                            " TXtime: " << seqTs.GetTs () <<
+                            " RXtime: " << Simulator::Now () <<
+-                           " Delay: " << Simulator::Now () - seqTs.GetTs ());
++                           " Delay: " << delay);
+             }
+           else if (Inet6SocketAddress::IsMatchingType (from))
+             {
+@@ -198,9 +222,11 @@ UdpServer::HandleRead (Ptr<Socket> socket)
+                            " Uid: " << packet->GetUid () <<
+                            " TXtime: " << seqTs.GetTs () <<
+                            " RXtime: " << Simulator::Now () <<
+-                           " Delay: " << Simulator::Now () - seqTs.GetTs ());
++                           " Delay: " << delay);
+             }
+ 
++            outputFile << receivedSize << "," << seqTs.GetTs().GetSeconds() << "," << delay.GetSeconds() << "," << m_lossCounter.GetLost() << "\n";
++
+           m_lossCounter.NotifyReceived (currentSequenceNumber);
+           m_received++;
+         }

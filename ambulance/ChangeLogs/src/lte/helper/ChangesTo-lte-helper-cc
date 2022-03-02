@@ -1,0 +1,17 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-helper-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\lte-helper.cc"
+index 0dc761e58..2cfc784e6 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-helper-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\lte-helper.cc"
+@@ -72,10 +72,10 @@ NS_LOG_COMPONENT_DEFINE ("LteHelper");
+ 
+ NS_OBJECT_ENSURE_REGISTERED (LteHelper);
+ 
+-LteHelper::LteHelper (void)
++LteHelper::LteHelper (uint16_t cellIdStart)
+   : m_fadingStreamsAssigned (false),
+     m_imsiCounter (0),
+-    m_cellIdCounter {1}
++    m_cellIdCounter {cellIdStart}
+ {
+   NS_LOG_FUNCTION (this);
+   m_enbNetDeviceFactory.SetTypeId (LteEnbNetDevice::GetTypeId ());

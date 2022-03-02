@@ -1,0 +1,140 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\aodv-routing-protocol-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\aodv\\model\\aodv-routing-protocol.cc"
+index 2687dd01e..0cb192c07 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\aodv-routing-protocol-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\aodv\\model\\aodv-routing-protocol.cc"
+@@ -653,7 +653,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
+   m_ipv4 = ipv4;
+ 
+   // Create lo route. It is asserted that the only one interface up for now is loopback
+-  NS_ASSERT (m_ipv4->GetNInterfaces () == 1 && m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
++  NS_ASSERT (m_ipv4->GetAddress (0, 0).GetLocal () == Ipv4Address ("127.0.0.1"));
+   m_lo = m_ipv4->GetNetDevice (0);
+   NS_ASSERT (m_lo != 0);
+   // Remember lo route
+@@ -963,6 +963,126 @@ RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) cons
+   return rt;
+ }
+ 
++void
++RoutingProtocol::PreSendRequest (Ipv4Address dst, Ipv4InterfaceAddress interfaceAddress)
++{
++  NS_LOG_FUNCTION ( this << dst);
++  // A node SHOULD NOT originate more than RREQ_RATELIMIT RREQ messages per second.
++  if (m_rreqCount == m_rreqRateLimit)
++    {
++      Simulator::Schedule (m_rreqRateLimitTimer.GetDelayLeft () + MicroSeconds (100),
++                           &RoutingProtocol::PreSendRequest, this, dst, interfaceAddress);
++      return;
++    }
++  else
++    {
++      m_rreqCount++;
++    }
++  // Create RREQ header
++  RreqHeader rreqHeader;
++  rreqHeader.SetDst (dst);
++
++  RoutingTableEntry rt;
++  // Using the Hop field in Routing Table to manage the expanding ring search
++  uint16_t ttl = m_ttlStart;
++  if (m_routingTable.LookupRoute (dst, rt))
++    {
++      if (rt.GetFlag () != IN_SEARCH)
++        {
++          ttl = std::min<uint16_t> (rt.GetHop () + m_ttlIncrement, m_netDiameter);
++        }
++      else
++        {
++          ttl = rt.GetHop () + m_ttlIncrement;
++          if (ttl > m_ttlThreshold)
++            {
++              ttl = m_netDiameter;
++            }
++        }
++      if (ttl == m_netDiameter)
++        {
++          rt.IncrementRreqCnt ();
++        }
++      if (rt.GetValidSeqNo ())
++        {
++          rreqHeader.SetDstSeqno (rt.GetSeqNo ());
++        }
++      else
++        {
++          rreqHeader.SetUnknownSeqno (true);
++        }
++      rt.SetHop (ttl);
++      rt.SetFlag (IN_SEARCH);
++      rt.SetLifeTime (m_pathDiscoveryTime);
++      m_routingTable.Update (rt);
++    }
++  else
++    {
++      rreqHeader.SetUnknownSeqno (true);
++      Ptr<NetDevice> dev = 0;
++      RoutingTableEntry newEntry (/*device=*/ dev, /*dst=*/ dst, /*validSeqNo=*/ false, /*seqno=*/ 0,
++                                              /*iface=*/ Ipv4InterfaceAddress (),/*hop=*/ ttl,
++                                              /*nextHop=*/ Ipv4Address (), /*lifeTime=*/ m_pathDiscoveryTime);
++      // Check if TtlStart == NetDiameter
++      if (ttl == m_netDiameter)
++        {
++          newEntry.IncrementRreqCnt ();
++        }
++      newEntry.SetFlag (IN_SEARCH);
++      m_routingTable.AddRoute (newEntry);
++    }
++
++  if (m_gratuitousReply)
++    {
++      rreqHeader.SetGratuitousRrep (true);
++    }
++  if (m_destinationOnly)
++    {
++      rreqHeader.SetDestinationOnly (true);
++    }
++
++  m_seqNo++;
++  rreqHeader.SetOriginSeqno (m_seqNo);
++  m_requestId++;
++  rreqHeader.SetId (m_requestId);
++
++  // Send RREQ as subnet directed broadcast from interface used
++  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j =
++         m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
++    {
++      if(j->second == interfaceAddress)
++      {
++      Ptr<Socket> socket = j->first;
++      Ipv4InterfaceAddress iface = j->second;
++
++      rreqHeader.SetOrigin (iface.GetLocal ());
++      m_rreqIdCache.IsDuplicate (iface.GetLocal (), m_requestId);
++
++      Ptr<Packet> packet = Create<Packet> ();
++      SocketIpTtlTag tag;
++      tag.SetTtl (ttl);
++      packet->AddPacketTag (tag);
++      packet->AddHeader (rreqHeader);
++      TypeHeader tHeader (AODVTYPE_RREQ);
++      packet->AddHeader (tHeader);
++      // Send to all-hosts broadcast if on /32 addr, subnet-directed otherwise
++      Ipv4Address destination;
++      if (iface.GetMask () == Ipv4Mask::GetOnes ())
++        {
++          destination = Ipv4Address ("255.255.255.255");
++        }
++      else
++        {
++          destination = iface.GetBroadcast ();
++        }
++      NS_LOG_DEBUG ("Send RREQ with id " << rreqHeader.GetId () << " to socket");
++      m_lastBcastTime = Simulator::Now ();
++      Simulator::Schedule (Time (MilliSeconds (m_uniformRandomVariable->GetInteger (0, 10))), &RoutingProtocol::SendTo, this, socket, packet, destination);
++      }
++    }
++  //ScheduleRreqRetry (dst);
++}
++
+ void
+ RoutingProtocol::SendRequest (Ipv4Address dst)
+ {

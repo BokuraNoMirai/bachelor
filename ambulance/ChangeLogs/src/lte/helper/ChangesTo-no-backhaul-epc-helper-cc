@@ -1,0 +1,75 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\no-backhaul-epc-helper-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\no-backhaul-epc-helper.cc"
+index adc9bfc23..65d866425 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\no-backhaul-epc-helper-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\no-backhaul-epc-helper.cc"
+@@ -24,7 +24,7 @@
+ #include "ns3/log.h"
+ #include "ns3/packet-socket-address.h"
+ #include "ns3/point-to-point-helper.h"
+-#include "ns3/internet-stack-helper.h"
++#include "ns3/internet-module.h"
+ #include "ns3/ipv6-static-routing-helper.h"
+ #include "ns3/icmpv6-l4-protocol.h"
+ #include "ns3/epc-enb-application.h"
+@@ -36,6 +36,8 @@
+ #include "ns3/epc-ue-nas.h"
+ #include "ns3/lte-enb-net-device.h"
+ #include "ns3/lte-ue-net-device.h"
++#include "ns3/dsdv-module.h"
++#include "ns3/aodv-module.h"
+ 
+ #include "ns3/no-backhaul-epc-helper.h"
+ 
+@@ -46,7 +48,7 @@ NS_LOG_COMPONENT_DEFINE ("NoBackhaulEpcHelper");
+ NS_OBJECT_ENSURE_REGISTERED (NoBackhaulEpcHelper);
+ 
+ 
+-NoBackhaulEpcHelper::NoBackhaulEpcHelper () 
++NoBackhaulEpcHelper::NoBackhaulEpcHelper (int16_t base) 
+   : m_gtpuUdpPort (2152),  // fixed by the standard
+     m_s11LinkDataRate (DataRate ("10Gb/s")),
+     m_s11LinkDelay (Seconds (0)),
+@@ -65,12 +67,12 @@ NoBackhaulEpcHelper::NoBackhaulEpcHelper ()
+   // since we use point-to-point links for links between the core network nodes,
+   // we use a /30 subnet which can hold exactly two addresses
+   // (remember that net broadcast and null address are not valid)
+-  m_x2Ipv4AddressHelper.SetBase ("12.0.0.0", "255.255.255.252");
+-  m_s11Ipv4AddressHelper.SetBase ("13.0.0.0", "255.255.255.252");
+-  m_s5Ipv4AddressHelper.SetBase ("14.0.0.0", "255.255.255.252");
++  m_x2Ipv4AddressHelper.SetBase ((std::to_string(base+3) + ".0.0.0").c_str(), "255.255.255.252");
++  m_s11Ipv4AddressHelper.SetBase ((std::to_string(base+4) + ".0.0.0").c_str(), "255.255.255.252");
++  m_s5Ipv4AddressHelper.SetBase ((std::to_string(base+5) + ".0.0.0").c_str(), "255.255.255.252");
+ 
+   // we use a /8 net for all UEs
+-  m_uePgwAddressHelper.SetBase ("7.0.0.0", "255.0.0.0");
++  m_uePgwAddressHelper.SetBase ((std::to_string(base) + ".0.0.0").c_str(), "255.0.0.0");
+ 
+   // we use a /64 IPv6 net all UEs
+   m_uePgwAddressHelper6.SetBase ("7777:f00d::", Ipv6Prefix (64));
+@@ -79,7 +81,13 @@ NoBackhaulEpcHelper::NoBackhaulEpcHelper ()
+   m_pgw = CreateObject<Node> ();
+   m_sgw = CreateObject<Node> ();
+   m_mme = CreateObject<Node> ();
++  RipHelper ripRoutingHelper;
++  Ipv4StaticRoutingHelper staticRoutingHelper;
++  Ipv4ListRoutingHelper listRoutingHelper;
++  //listRoutingHelper.Add(ripRoutingHelper, 10);
++  listRoutingHelper.Add(staticRoutingHelper, 5);
+   InternetStackHelper internet;
++  internet.SetRoutingHelper(listRoutingHelper);
+   internet.Install (m_pgw);
+   internet.Install (m_sgw);
+   internet.Install (m_mme);
+@@ -540,6 +548,12 @@ NoBackhaulEpcHelper::GetSgwNode () const
+   return m_sgw;
+ }
+ 
++Ptr<Node>
++NoBackhaulEpcHelper::GetMmeNode () const
++{
++  return m_mme;
++}
++
+ 
+ void
+ NoBackhaulEpcHelper::AddS1Interface (Ptr<Node> enb, Ipv4Address enbAddress, Ipv4Address sgwAddress, uint16_t cellId)

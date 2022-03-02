@@ -1,0 +1,43 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-helper-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\lte-helper.h"
+index 2731be7ab..3888e7ef9 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-helper-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\lte-helper.h"
+@@ -102,7 +102,8 @@ class SpectrumPropagationLossModel;
+ class LteHelper : public Object
+ {
+ public:
+-  LteHelper (void);
++  LteHelper (void) : LteHelper(1){};
++  LteHelper (uint16_t cellIDStart);
+   virtual ~LteHelper (void);
+ 
+   /**
+@@ -669,13 +670,6 @@ public:
+    */
+   Ptr<SpectrumChannel> GetDownlinkSpectrumChannel (void) const;
+ 
+-
+-protected:
+-  // inherited from Object
+-  virtual void DoInitialize (void);
+-
+-private:
+-
+   /**
+    * Configure the component carriers
+    *
+@@ -685,6 +679,14 @@ private:
+    * \param dlbw downlink bandwidth for each CC
+    */
+   void DoComponentCarrierConfigure (uint32_t ulEarfcn, uint32_t dlEarfcn, uint16_t ulbw, uint16_t dlbw);
++
++
++protected:
++  // inherited from Object
++  virtual void DoInitialize (void);
++
++private:
++
+   /**
+    * Create an eNodeB device (LteEnbNetDevice) on the given node.
+    * \param n the node where the device is to be installed

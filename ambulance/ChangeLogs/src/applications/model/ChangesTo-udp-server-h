@@ -1,0 +1,22 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\udp-server-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\applications\\model\\udp-server.h"
+index f6a42ae83..7d7e40637 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\udp-server-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\applications\\model\\udp-server.h"
+@@ -29,6 +29,7 @@
+ #include "ns3/address.h"
+ #include "ns3/traced-callback.h"
+ #include "packet-loss-counter.h"
++#include <fstream>
+ 
+ namespace ns3 {
+ /**
+@@ -102,6 +103,9 @@ private:
+   Ptr<Socket> m_socket6; //!< IPv6 Socket
+   uint64_t m_received; //!< Number of received packets
+   PacketLossCounter m_lossCounter; //!< Lost packet counter
++  Time minDelay;
++  Time maxDelay;
++  Time totalDelay;
+ 
+   /// Callbacks for tracing the packet Rx events
+   TracedCallback<Ptr<const Packet> > m_rxTrace;

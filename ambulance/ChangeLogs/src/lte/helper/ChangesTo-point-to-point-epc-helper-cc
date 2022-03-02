@@ -1,0 +1,26 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\point-to-point-epc-helper-687a274.000.cc" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\point-to-point-epc-helper.cc"
+index dde1f0761..fcbef2a5b 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\point-to-point-epc-helper-687a274.000.cc"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\point-to-point-epc-helper.cc"
+@@ -35,8 +35,8 @@ NS_LOG_COMPONENT_DEFINE ("PointToPointEpcHelper");
+ NS_OBJECT_ENSURE_REGISTERED (PointToPointEpcHelper);
+ 
+ 
+-PointToPointEpcHelper::PointToPointEpcHelper ()
+-  : NoBackhaulEpcHelper ()
++PointToPointEpcHelper::PointToPointEpcHelper (int16_t base)
++  : NoBackhaulEpcHelper (base)
+ {
+   NS_LOG_FUNCTION (this);
+   // To access the attribute value within the constructor
+@@ -45,8 +45,8 @@ PointToPointEpcHelper::PointToPointEpcHelper ()
+   // since we use point-to-point links for the backhaul links,
+   // we use a /30 subnet which can hold exactly two addresses
+   // (remember that net broadcast and null address are not valid)
+-  m_s1uIpv4AddressHelper.SetBase ("10.0.0.0", "255.255.255.252");
+-  m_s1apIpv4AddressHelper.SetBase ("11.0.0.0", "255.255.255.252");
++  m_s1uIpv4AddressHelper.SetBase ((std::to_string(base+1) + ".0.0.0").c_str(), "255.255.255.252");
++  m_s1apIpv4AddressHelper.SetBase ((std::to_string(base+2) + ".0.0.0").c_str(), "255.255.255.252");
+ }
+ 
+ PointToPointEpcHelper::~PointToPointEpcHelper ()

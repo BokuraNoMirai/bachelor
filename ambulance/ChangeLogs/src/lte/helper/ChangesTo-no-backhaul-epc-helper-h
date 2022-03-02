@@ -1,0 +1,22 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\no-backhaul-epc-helper-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\no-backhaul-epc-helper.h"
+index 27ce32b6a..08b44105c 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\no-backhaul-epc-helper-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\no-backhaul-epc-helper.h"
+@@ -49,7 +49,8 @@ public:
+   /**
+    * Constructor
+    */
+-  NoBackhaulEpcHelper ();
++  NoBackhaulEpcHelper () : NoBackhaulEpcHelper(7){};
++  NoBackhaulEpcHelper (int16_t base);
+ 
+   /**
+    * Destructor
+@@ -73,6 +74,7 @@ public:
+   virtual uint8_t ActivateEpsBearer (Ptr<NetDevice> ueLteDevice, uint64_t imsi, Ptr<EpcTft> tft, EpsBearer bearer);
+   virtual Ptr<Node> GetSgwNode () const;
+   virtual Ptr<Node> GetPgwNode () const;
++  Ptr<Node> GetMmeNode () const;
+   virtual Ipv4InterfaceContainer AssignUeIpv4Address (NetDeviceContainer ueDevices);
+   virtual Ipv6InterfaceContainer AssignUeIpv6Address (NetDeviceContainer ueDevices);
+   virtual Ipv4Address GetUeDefaultGatewayAddress ();

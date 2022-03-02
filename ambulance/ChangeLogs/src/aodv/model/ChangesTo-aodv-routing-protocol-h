@@ -1,0 +1,17 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\aodv-routing-protocol-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\aodv\\model\\aodv-routing-protocol.h"
+index 2aa9263b3..e2e996d7a 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\aodv-routing-protocol-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\aodv\\model\\aodv-routing-protocol.h"
+@@ -181,6 +181,12 @@ public:
+    */
+   int64_t AssignStreams (int64_t stream);
+ 
++  /** Send RREQ over interface
++   * \param dst destination address
++   * \param interface interface to send through
++   */
++  void PreSendRequest (Ipv4Address dst, Ipv4InterfaceAddress interfaceAddress);
++
+ protected:
+   virtual void DoInitialize (void);
+ private:

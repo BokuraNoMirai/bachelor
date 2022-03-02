@@ -1,0 +1,23 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-ue-rrc-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\model\\lte-ue-rrc.h"
+index 3ec837dac..ebbe5d123 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\lte-ue-rrc-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\model\\lte-ue-rrc.h"
+@@ -284,6 +284,18 @@ public:
+    */
+   uint16_t GetCellId () const;
+ 
++  /**
++   *
++   * \return the rsrp of the attached Enb
++   */
++  double GetRsrp ();
++
++  /**
++   *
++   * \return the rsrq of the attached Enb
++   */
++  double GetRsrq ();
++
+   /** 
+    * \return the uplink bandwidth in RBs
+    */

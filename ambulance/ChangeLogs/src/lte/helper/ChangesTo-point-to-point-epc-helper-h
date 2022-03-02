@@ -1,0 +1,14 @@
+diff --git "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\point-to-point-epc-helper-687a274.000.h" "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\point-to-point-epc-helper.h"
+index ad545521b..8cf989834 100644
+--- "a/C:\\Users\\HJRDES~1\\AppData\\Local\\Temp\\TortoiseGit\\point-to-point-epc-helper-687a274.000.h"
++++ "b/C:\\Users\\Hj\303\266rdes\\Documents\\Studium\\Bachelorarbeit\\ns-3.35\\src\\lte\\helper\\point-to-point-epc-helper.h"
+@@ -41,7 +41,8 @@ public:
+   /**
+    * Constructor
+    */
+-  PointToPointEpcHelper ();
++  PointToPointEpcHelper () : PointToPointEpcHelper(7){};
++  PointToPointEpcHelper (int16_t base);
+ 
+   /**
+    * Destructor
